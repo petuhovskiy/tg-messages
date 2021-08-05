@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -77,23 +76,14 @@ func NewApp() (*App, error) {
 
 func (a *App) Run(ctx context.Context) error {
 	group, ctx := errgroup.WithContext(ctx)
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return xerrors.Errorf("get home: %w", err)
-	}
-
-	sessionDir := filepath.Join(home, ".td")
-
-	if err := os.MkdirAll(sessionDir, 0700); err != nil {
-		return xerrors.Errorf("mkdir: %w", err)
-	}
 
 	dispatcher := tg.NewUpdateDispatcher()
+	sessionStorage := &session.FileStorage{
+		Path: a.cfg.SessionFile,
+	}
 	client := telegram.NewClient(a.cfg.AppID, a.cfg.AppHash, telegram.Options{
-		SessionStorage: &session.FileStorage{
-			Path: filepath.Join(sessionDir, "session.json"),
-		},
-		UpdateHandler: dispatcher,
+		SessionStorage: sessionStorage,
+		UpdateHandler:  dispatcher,
 		Middlewares: []telegram.Middleware{
 			floodwait.NewSimpleWaiter(),
 			ratelimit.New(rate.Every(100*time.Millisecond), 5),

@@ -44,6 +44,8 @@ func run(ctx context.Context) error {
 }
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Llongfile)
+
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 
 	defer cancel()

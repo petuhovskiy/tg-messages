@@ -13,6 +13,7 @@ type Config struct {
 	Phone            string `env:"PHONE,required"`
 	Password         string `env:"PASSWORD"`
 	N                int    `env:"N"` // number of messages to save
+	SessionFile      string `env:"SESSION_FILE" envDefault:"session.json"`
 }
 
 func Parse() (*Config, error) {

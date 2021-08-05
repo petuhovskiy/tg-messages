@@ -5,9 +5,10 @@ go 1.16
 require (
 	github.com/caarlos0/env/v6 v6.6.2
 	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/gotd/contrib v0.9.0
-	github.com/gotd/td v0.45.1
+	github.com/gotd/td v0.49.0
 	github.com/jinzhu/gorm v1.9.16
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.18.1 // indirect

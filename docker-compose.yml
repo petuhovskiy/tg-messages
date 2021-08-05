@@ -1,0 +1,28 @@
+version: "3.7"
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - 5432:5432
+    volumes:
+      - "data-app:/var/lib/postgresql/data"
+    restart: unless-stopped
+
+  app:
+    build: .
+    env_file:
+      - .env
+    environment:
+      SESSION_FILE: "/volume/session.json"
+    ports:
+      - 8080:8080
+    volumes:
+      - "./:/volume"
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+#    restart: unless-stopped
+
+volumes:
+  data-app:
