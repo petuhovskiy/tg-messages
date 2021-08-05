@@ -118,6 +118,8 @@ func (a *App) Run(ctx context.Context) error {
 
 	group.Go(func() error {
 		return client.Run(ctx, func(ctx context.Context) error {
+			log.Println("Run successful")
+
 			var flow auth.Flow
 
 			if a.cfg.Password != "" {
@@ -207,7 +209,8 @@ func (a *App) saveMessages(messages []tg.Message) {
 
 func (a *App) Close() error {
 	err := a.db.Close()
-	return multierr.Append(err, a.logger.Sync())
+	return err
+	//return multierr.Append(err, a.logger.Sync())
 }
 
 func getCode(ctx context.Context, sentCode *tg.AuthSentCode) (string, error) {

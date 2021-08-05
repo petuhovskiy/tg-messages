@@ -1,13 +1,13 @@
-FROM golang:1.16.4-alpine AS go-builder
+FROM golang:1.16.3-buster AS go-builder
 
 WORKDIR /usr/src/app
 
-RUN apk add --update \
-        curl \
-        gcc \
-        git \
-        make \
-        musl-dev
+#RUN apk add --update \
+#        curl \
+#        gcc \
+#        git \
+#        make \
+#        musl-dev
 
 COPY go.mod .
 COPY go.sum .
@@ -17,17 +17,17 @@ COPY . .
 RUN cd cmd/tgm && go build -o /app
 
 
-FROM alpine:3.13
+FROM debian:buster
 
 # Install packages required by the image
-RUN apk add --update \
-        bash \
-        ca-certificates \
-        coreutils \
-        curl \
-        jq \
-        openssl \
-    && rm /var/cache/apk/*
+#RUN apk add --update \
+#        bash \
+#        ca-certificates \
+#        coreutils \
+#        curl \
+#        jq \
+#        openssl \
+#    && rm /var/cache/apk/*
 
 COPY --from=go-builder /app ./
 

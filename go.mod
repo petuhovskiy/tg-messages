@@ -10,6 +10,7 @@ require (
 	github.com/gotd/contrib v0.9.0
 	github.com/gotd/td v0.49.0
 	github.com/jinzhu/gorm v1.9.16
+	github.com/stretchr/testify v1.7.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.18.1 // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a // indirect
