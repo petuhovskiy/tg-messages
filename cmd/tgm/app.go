@@ -4,6 +4,12 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/cenkalti/backoff/v4"
+	"github.com/gotd/contrib/middleware/floodwait"
+	"github.com/gotd/contrib/middleware/ratelimit"
+	"github.com/gotd/td/telegram/dcs"
+	"golang.org/x/net/proxy"
+	"golang.org/x/time/rate"
 	"log"
 	"net/http"
 	"os"
@@ -11,10 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cenkalti/backoff/v4"
 	"github.com/gorilla/mux"
-	"github.com/gotd/contrib/middleware/floodwait"
-	"github.com/gotd/contrib/middleware/ratelimit"
 	"github.com/gotd/td/session"
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/auth"
@@ -25,7 +28,6 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/sync/errgroup"
-	"golang.org/x/time/rate"
 	"golang.org/x/xerrors"
 	"tg-messages/internal/config"
 	"tg-messages/internal/database"
@@ -81,20 +83,22 @@ func (a *App) Run(ctx context.Context) error {
 	sessionStorage := &session.FileStorage{
 		Path: a.cfg.SessionFile,
 	}
+
 	client := telegram.NewClient(a.cfg.AppID, a.cfg.AppHash, telegram.Options{
 		SessionStorage: sessionStorage,
 		UpdateHandler:  dispatcher,
 		Middlewares: []telegram.Middleware{
-			floodwait.NewSimpleWaiter(),
+			floodwait.NewSimpleWaiter().WithMaxRetries(10),
 			ratelimit.New(rate.Every(100*time.Millisecond), 5),
 		},
-		// Logger: a.logger,
+		Logger: a.logger,
 		ReconnectionBackoff: func() backoff.BackOff {
-			return backoff.WithMaxRetries(backoff.NewConstantBackOff(time.Nanosecond), 2)
+			return backoff.WithMaxRetries(backoff.NewExponentialBackOff(), 10)
 		},
+		Resolver: dcs.Plain(dcs.PlainOptions{
+			Dial: proxy.Dial,
+		}),
 	})
-
-	api := tg.NewClient(client)
 
 	server := http.Server{
 		Addr:    ":" + strconv.Itoa(a.cfg.Port),
@@ -119,6 +123,7 @@ func (a *App) Run(ctx context.Context) error {
 	group.Go(func() error {
 		return client.Run(ctx, func(ctx context.Context) error {
 			log.Println("Run successful")
+			api := client.API()
 
 			var flow auth.Flow
 

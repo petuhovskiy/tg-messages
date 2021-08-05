@@ -13,6 +13,7 @@ require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.18.1 // indirect
+	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a // indirect
 	golang.org/x/time v0.0.0-20210611083556-38a9dc6acbc6
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
